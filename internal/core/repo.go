@@ -11,7 +11,7 @@ import (
 
 type Repository struct {
 	Path string
-	File *FileManager
+	File FileManagerInterface
 }
 
 const (
