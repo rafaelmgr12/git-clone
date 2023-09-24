@@ -4,7 +4,9 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"io/ioutil"
 	"path/filepath"
+	"strings"
 )
 
 type Repository struct {
@@ -13,9 +15,10 @@ type Repository struct {
 }
 
 const (
-	objectsDir = "objects"
-	refsDir    = "refs"
-	configFile = "config"
+	objectsDir  = "objects"
+	refsDir     = "refs"
+	configFile  = "config"
+	stagingArea = "STAGING"
 )
 
 func NewRepository(path string) *Repository {
@@ -71,4 +74,51 @@ func (r *Repository) addSingleFile(filePath string) error {
 
 	objectPath := filepath.Join(r.Path, objectsDir, hastToString)
 	return r.File.WriteFile(objectPath, content)
+}
+
+func (r *Repository) GetStagedFiles() ([]string, error) {
+	stagingPath := filepath.Join(r.Path, stagingArea)
+	if !r.File.Exists(stagingPath) {
+		return nil, nil
+	}
+	content, err := r.File.ReadFile(stagingPath)
+	if err != nil {
+		return nil, err
+	}
+
+	files := strings.Split(string(content), "\n")
+	return files, nil
+}
+
+func (r *Repository) GetChangesNotStaged() ([]string, error) {
+	workingDir := filepath.Dir(r.Path)
+	files, err := ioutil.ReadDir(workingDir)
+	if err != nil {
+		return nil, err
+	}
+
+	stagedFiles, err := r.GetStagedFiles()
+	if err != nil {
+		return nil, err
+	}
+	var changesNotStaged []string
+	for _, file := range files {
+		if file.IsDir() || file.Name() == ".fit" {
+			continue
+		}
+		if !contains(stagedFiles, file.Name()) {
+			changesNotStaged = append(changesNotStaged, file.Name())
+		}
+	}
+	return changesNotStaged, nil
+
+}
+
+func contains(slice []string, s string) bool {
+	for _, v := range slice {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }
