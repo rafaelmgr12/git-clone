@@ -37,7 +37,7 @@ By understanding these fundamental concepts, one can appreciate the power and fl
 The Project was develop as using the following techs:
 
 - [Go](https://go.dev/)
-- [Cobra](github.com/spf13/cobra v1.7.0)
+- [Cobra](github.com/spf13/cobra)
 
 ## 💻 Project
 
