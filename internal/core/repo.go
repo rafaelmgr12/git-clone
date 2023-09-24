@@ -15,9 +15,9 @@ type Repository struct {
 }
 
 const (
-	objectsDir  = "objects"
-	refsDir     = "refs"
-	configFile  = "config"
+	ObjectsDir  = "objects"
+	RefsDir     = "refs"
+	ConfigFile  = "config"
 	StagingArea = "STAGING"
 )
 
@@ -34,7 +34,7 @@ func (r *Repository) Init() error {
 		return err
 	}
 
-	for _, dir := range []string{objectsDir, refsDir} {
+	for _, dir := range []string{ObjectsDir, RefsDir} {
 		if err := r.File.CreateDir(r.Path + "/" + dir); err != nil {
 			return err
 		}
@@ -50,7 +50,7 @@ func (r *Repository) createDefaultConfig() error {
 	"email": ""
 }`
 
-	configPath := filepath.Join(r.Path, configFile)
+	configPath := filepath.Join(r.Path, ConfigFile)
 	return r.File.WriteFile(configPath, []byte(defaultConfig))
 }
 
@@ -72,7 +72,7 @@ func (r *Repository) addSingleFile(filePath string) error {
 	hash := sha1.Sum(content)
 	hastToString := hex.EncodeToString(hash[:])
 
-	objectPath := filepath.Join(r.Path, objectsDir, hastToString)
+	objectPath := filepath.Join(r.Path, ObjectsDir, hastToString)
 	return r.File.WriteFile(objectPath, content)
 }
 
