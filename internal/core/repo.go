@@ -22,7 +22,7 @@ const (
 )
 
 func NewRepository(path string) *Repository {
-	return &Repository{Path: path}
+	return &Repository{Path: path, File: NewFileManager()}
 }
 
 func (r *Repository) Init() error {
@@ -91,7 +91,7 @@ func (r *Repository) GetStagedFiles() ([]string, error) {
 }
 
 func (r *Repository) GetChangesNotStaged() ([]string, error) {
-	workingDir := filepath.Dir(r.Path)
+	workingDir := r.Path // Use the repository path as the working directory
 	files, err := ioutil.ReadDir(workingDir)
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (r *Repository) GetChangesNotStaged() ([]string, error) {
 	}
 	var changesNotStaged []string
 	for _, file := range files {
-		if file.IsDir() || file.Name() == ".fit" {
+		if file.IsDir() {
 			continue
 		}
 		if !contains(stagedFiles, file.Name()) {
@@ -111,7 +111,6 @@ func (r *Repository) GetChangesNotStaged() ([]string, error) {
 		}
 	}
 	return changesNotStaged, nil
-
 }
 
 func contains(slice []string, s string) bool {
