@@ -51,7 +51,16 @@ func (r *Repository) createDefaultConfig() error {
 	return r.File.WriteFile(configPath, []byte(defaultConfig))
 }
 
-func (r *Repository) AddFile(filePath string) error {
+func (r *Repository) AddFiles(filePaths []string) error {
+	for _, filePath := range filePaths {
+		if err := r.addSingleFile(filePath); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *Repository) addSingleFile(filePath string) error {
 	content, err := r.File.ReadFile(filePath)
 	if err != nil {
 		return err
