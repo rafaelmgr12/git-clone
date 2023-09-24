@@ -59,6 +59,10 @@ func (r *Repository) AddFiles(filePaths []string) error {
 		if err := r.addSingleFile(filePath); err != nil {
 			return err
 		}
+
+		if err := r.File.UpdateIndexFile(filePath); err != nil {
+			return err
+		}
 	}
 	return r.UpdateStagingArea(filePaths)
 }
