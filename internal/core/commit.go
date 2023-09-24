@@ -3,6 +3,7 @@ package core
 import (
 	"crypto/sha1"
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"time"
 )
@@ -49,4 +50,52 @@ func (c *Commit) Save(repo *Repository) error {
 	commitPath := repo.Path + "/objects/" + c.Hash
 	data := c.Serialize()
 	return repo.File.WriteFile(commitPath, []byte(data))
+}
+
+func (r *Repository) GetCommits() ([]Commit, error) {
+	objectFiles, err := ioutil.ReadDir(r.Path + "/objects")
+	if err != nil {
+		return nil, fmt.Errorf("error reading objects directory: %v", err)
+	}
+
+	var commits []Commit
+	for _, objectFile := range objectFiles {
+		commitContent, err := r.File.ReadFile(r.Path + "/objects/" + objectFile.Name())
+		if err != nil {
+			return nil, fmt.Errorf("error reading commit object: %v", err)
+		}
+
+		commit := DeserializeCommit(string(commitContent))
+		commits = append(commits, commit)
+	}
+
+	return commits, nil
+}
+
+func DeserializeCommit(data string) Commit {
+	lines := strings.Split(data, "\n")
+
+	var commit Commit
+	for _, line := range lines {
+		switch {
+		case strings.HasPrefix(line, "Hash:"):
+			commit.Hash = strings.TrimPrefix(line, "Hash: ")
+		case strings.HasPrefix(line, "Message:"):
+			commit.Message = strings.TrimPrefix(line, "Message: ")
+		case strings.HasPrefix(line, "Date:"):
+			date, _ := time.Parse(time.RFC3339, strings.TrimPrefix(line, "Date: "))
+			commit.Date = date
+		case strings.HasPrefix(line, "Author:"):
+			authorData := strings.TrimPrefix(line, "Author: ")
+			parts := strings.SplitN(authorData, " <", 2)
+			commit.AuthorName = parts[0]
+			commit.AuthorEmail = strings.TrimRight(parts[1], ">")
+		case strings.HasPrefix(line, "Parent:"):
+			commit.Parent = strings.TrimPrefix(line, "Parent: ")
+		case strings.HasPrefix(line, "Files:"):
+			i := strings.Index(data, "Files:\n")
+			commit.Files = strings.Split(data[i+7:], "\n")
+		}
+	}
+	return commit
 }
