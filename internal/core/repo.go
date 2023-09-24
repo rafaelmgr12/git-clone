@@ -60,7 +60,7 @@ func (r *Repository) AddFiles(filePaths []string) error {
 			return err
 		}
 	}
-	return nil
+	return r.UpdateStagingArea(filePaths)
 }
 
 func (r *Repository) addSingleFile(filePath string) error {
@@ -111,6 +111,13 @@ func (r *Repository) GetChangesNotStaged() ([]string, error) {
 		}
 	}
 	return changesNotStaged, nil
+}
+
+func (r *Repository) UpdateStagingArea(files []string) error {
+	stagingPath := filepath.Join(r.Path, StagingArea)
+	content := strings.Join(files, "\n")
+	return r.File.WriteFile(stagingPath, []byte(content))
+
 }
 
 func contains(slice []string, s string) bool {
