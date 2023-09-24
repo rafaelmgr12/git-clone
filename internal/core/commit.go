@@ -18,10 +18,12 @@ type Commit struct {
 	Files       []string
 }
 
+const layout = "2006-01-02 15:04:05" // Custom date format
+
 func NewCommit(message, authorName, authorEmail string, parent string, files []string) *Commit {
 	c := &Commit{
 		Message:     message,
-		Date:        time.Now(),
+		Date:        time.Now().UTC(), // Save date in UTC
 		AuthorName:  authorName,
 		AuthorEmail: authorEmail,
 		Parent:      parent,
@@ -32,7 +34,7 @@ func NewCommit(message, authorName, authorEmail string, parent string, files []s
 }
 
 func (c *Commit) generateHash() string {
-	hashData := fmt.Sprintf("%s%s%s%s", c.Message, c.Date, c.AuthorName, c.AuthorEmail)
+	hashData := fmt.Sprintf("%s%s%s%s", c.Message, c.Date.Format(layout), c.AuthorName, c.AuthorEmail)
 	hasher := sha1.New()
 	hasher.Write([]byte(hashData))
 	return fmt.Sprintf("%x", hasher.Sum(nil))
@@ -42,7 +44,7 @@ func (c *Commit) Serialize() string {
 	files := strings.Join(c.Files, "\n")
 	return fmt.Sprintf(
 		"Hash: %s\nMessage: %s\nDate: %s\nAuthor: %s <%s>\nParent: %s\nFiles:\n%s",
-		c.Hash, c.Message, c.Date, c.AuthorName, c.AuthorEmail, c.Parent, files,
+		c.Hash, c.Message, c.Date.Format(layout), c.AuthorName, c.AuthorEmail, c.Parent, files,
 	)
 }
 
@@ -83,7 +85,10 @@ func DeserializeCommit(data string) Commit {
 		case strings.HasPrefix(line, "Message:"):
 			commit.Message = strings.TrimPrefix(line, "Message: ")
 		case strings.HasPrefix(line, "Date:"):
-			date, _ := time.Parse(time.RFC3339, strings.TrimPrefix(line, "Date: "))
+			date, err := time.Parse(layout, strings.TrimPrefix(line, "Date: ")) // Use custom date format
+			if err != nil {
+				fmt.Printf("Error parsing date: %v\n", err)
+			}
 			commit.Date = date
 		case strings.HasPrefix(line, "Author:"):
 			authorData := strings.TrimPrefix(line, "Author: ")
