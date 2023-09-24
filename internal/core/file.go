@@ -21,6 +21,7 @@ type FileManagerInterface interface {
 	RemoveFile(path string) error
 	RemoveDir(path string) error
 	UpdateIndexFile(filename string) error
+	ListFiles(dir string) ([]string, error)
 }
 
 type FileManager struct{}
@@ -115,4 +116,16 @@ func (fm *FileManager) UpdateIndexFile(filename string) error {
 	}
 	content = append(content, []byte(filename+"\n")...)
 	return fm.WriteFile(indexFilePath, content)
+}
+func (f *FileManager) ListFiles(dir string) ([]string, error) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	filenames := make([]string, len(files))
+	for i, file := range files {
+		filenames[i] = file.Name()
+	}
+	return filenames, nil
 }
