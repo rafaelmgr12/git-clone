@@ -6,6 +6,16 @@ import (
 	"os"
 )
 
+type FileManagerInterface interface {
+	Exists(path string) bool
+	CreateDir(path string) error
+	ReadFile(path string) ([]byte, error)
+	WriteFile(path string, data []byte) error
+	CopyFile(src, dest string) error
+	RemoveFile(path string) error
+	RemoveDir(path string) error
+}
+
 type FileManager struct{}
 
 func NewFileManager() *FileManager {
