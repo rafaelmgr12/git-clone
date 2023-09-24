@@ -6,6 +6,11 @@ import (
 	"os"
 )
 
+var (
+	ErrFileNotFound     = fmt.Errorf("file not found")
+	ErrPermissionDenied = fmt.Errorf("permission denied")
+)
+
 type FileManagerInterface interface {
 	Exists(path string) bool
 	CreateDir(path string) error
@@ -20,6 +25,18 @@ type FileManager struct{}
 
 func NewFileManager() *FileManager {
 	return &FileManager{}
+}
+
+func (fm *FileManager) hasPermission(path string, write bool) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	perm := info.Mode().Perm()
+	if write {
+		return perm&0200 != 0
+	}
+	return perm&0400 != 0
 }
 
 func (fm *FileManager) CreateDir(path string) error {
