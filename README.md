@@ -43,39 +43,66 @@ The Project was develop as using the following techs:
 
 In this challenge, we aim to build a command-line interface (CLI) program that can save copies of files and provide feedback on the state of these copies. This tool will be named "fit" (though the name is optional), and it will perform basic version control operations such as initializing a repository, adding files, committing changes, checking the status, and viewing the log of commits.
 
+### Modeling of "fit" - A Simplified Version of Git
+
+The "fit" was designed to be a command-line interface (CLI) tool that simulates some of the core functionalities of Git. The idea was to create a simplified version of a version control system, retaining some of the primary concepts that make Git a powerful tool for developers.
+
+#### Key Concepts
+
+1. **Repository Initialization (`git init`)**:
+   - Just like in Git, "fit" allows users to initialize a new repository. This creates a special directory where all the repository information is stored.
+
+2. **Staging Area (`git add`)**:
+   - Before committing changes, files are added to a staging area. This area contains all the changes that will be included in the next commit.
+
+3. **Commit (`git commit`)**:
+   - Changes from the staging area are saved to the repository. Each commit has a unique ID, a message describing the changes, and author information.
+
+4. **Log (`git log`)**:
+   - "fit" provides a history of all the commits made in the repository, allowing developers to track changes over time.
+
+The modeling of "fit" was done to capture the essence of what makes Git an essential tool for developers, simplifying some of the more complex concepts to make it more accessible and easy to understand for those new to version control.
+
 ## 🚀 How to Run
 
 1. Clone the repository
 2. Change to the project directory
-3. Build the project 
+3. Build the project
+
 ```bash
 go build -o fit cmd/main.go
 ```
+
 ### Linux
+
 4. Setting Up Environment Variables:
-    * To add the current directory to your PATH, you can edit the .bashrc file (or .zshrc if you're using Zsh) in your home directory:
-    
+    - To add the current directory to your PATH, you can edit the .bashrc file (or .zshrc if you're using Zsh) in your home directory:
+
     ```bash
     nano ~/.bashrc
     ```
-    
+
     Add the following line to the end of the file (replace /path/to/directory with the full path to the directory where the fit executable is located):
+
   ```bash
   export PATH=$PATH:/path/to/directory
   ```
   
 ### Windows
-3. Build the project 
+
+3. Build the project
+
 ```bash
 go build -o fit.exe cmd/main.go
 ```
+
 4. Setting Up Environment Variables:
-    * Right-click on the "This PC" or "Computer" icon on the desktop or in File Explorer and select "Properties".
-    * In the left panel, click on "Advanced system settings".
-    * Click the "Environment Variables" button at the bottom of the window.
-    * In the "System Variables" section, find the "Path" variable and click "Edit".
-    * Click "New" and add the full path to the directory where the fit.exe executable is located.
-    * Click "OK" to close each of the window
+    - Right-click on the "This PC" or "Computer" icon on the desktop or in File Explorer and select "Properties".
+    - In the left panel, click on "Advanced system settings".
+    - Click the "Environment Variables" button at the bottom of the window.
+    - In the "System Variables" section, find the "Path" variable and click "Edit".
+    - Click "New" and add the full path to the directory where the fit.exe executable is located.
+    - Click "OK" to close each of the window
 
 ## 📄 License
 
@@ -83,6 +110,22 @@ The projects is under the MIT license. See the file [LICENSE](LICENSE) fore more
 
 ---
 
+## Future To-Do List
+
+- [ ] **Enhanced User Configuration**: Allow users to set their author name and email globally, similar to `git config`, so they don't have to provide it every time they make a commit.
+- [ ] **Remote Repository Integration**: Implement commands similar to `git push` and `git pull` to allow users to sync their local repositories with remote ones.
+- [ ] **Diff Functionality**: Add a command to show the differences between the working directory and the last commit, similar to `git diff`.
+- [ ] **Branching and Merging**: Enhance the branching system to allow for more complex workflows, including merging branches.
+- [ ] **Improved Error Handling**: Provide more detailed error messages and handle edge cases more gracefully.
+- [ ] **GUI Integration**: Develop a graphical user interface (GUI) for users who prefer a visual representation of their repository.
+- [ ] **Optimization**: Optimize the storage and retrieval of commits, especially when dealing with large repositories.
+- [ ] **Documentation and Tutorials**: Provide more detailed documentation and tutorials to help new users get started with "fit".
+- [ ] **Plugins and Extensions**: Allow for the development of plugins and extensions to enhance the functionality of "fit".
+- [ ] **Integration with CI/CD Tools**: Allow "fit" to integrate with popular continuous integration and continuous deployment tools.
+
+Contributions and suggestions are always welcome!
+
+---
 ## Author
 
 Made with ♥ by Rafael 👋🏻
