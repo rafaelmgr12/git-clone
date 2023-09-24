@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 )
@@ -46,7 +45,6 @@ func (r *Repository) Init() error {
 	}
 
 	return r.CreateDefaultConfig()
-
 }
 
 func (r *Repository) CreateDefaultConfig() error {
@@ -95,13 +93,12 @@ func (r *Repository) GetStagedFiles() ([]string, error) {
 		return nil, err
 	}
 
-	files := strings.Split(string(content), "\n")
+	files := strings.Split(strings.TrimSpace(string(content)), "\n")
 	return files, nil
 }
 
 func (r *Repository) GetChangesNotStaged() ([]string, error) {
-	workingDir := r.Path // Use the repository path as the working directory
-	files, err := ioutil.ReadDir(workingDir)
+	workingDirFiles, err := r.File.ListFiles(r.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -110,13 +107,11 @@ func (r *Repository) GetChangesNotStaged() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var changesNotStaged []string
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-		if !contains(stagedFiles, file.Name()) {
-			changesNotStaged = append(changesNotStaged, file.Name())
+	for _, file := range workingDirFiles {
+		if !contains(stagedFiles, file) {
+			changesNotStaged = append(changesNotStaged, file)
 		}
 	}
 	return changesNotStaged, nil
@@ -126,7 +121,6 @@ func (r *Repository) UpdateStagingArea(files []string) error {
 	stagingPath := filepath.Join(r.Path, StagingArea)
 	content := strings.Join(files, "\n")
 	return r.File.WriteFile(stagingPath, []byte(content))
-
 }
 
 func contains(slice []string, s string) bool {
