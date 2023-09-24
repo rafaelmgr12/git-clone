@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -40,8 +41,9 @@ func (fm *FileManager) hasPermission(path string, write bool) bool {
 }
 
 func (fm *FileManager) CreateDir(path string) error {
-	if err := os.Mkdir(path, 0755); err != nil {
-		return fmt.Errorf("erro ao criar diretório %s: %v", path, err)
+	if !fm.hasPermission(path, true) {
+		log.Printf("permission denied: %s", path)
+		return ErrPermissionDenied
 	}
 	return nil
 }
@@ -52,17 +54,24 @@ func (fm *FileManager) Exists(path string) bool {
 }
 
 func (fm *FileManager) ReadFile(path string) ([]byte, error) {
-	content, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao ler arquivo %s: %v", path, err)
+	content, _ := ioutil.ReadFile(path)
+	if !fm.hasPermission(path, false) {
+		log.Printf("Permission Denied: %s", path)
+		return nil, ErrPermissionDenied
 	}
 	return content, nil
 }
 
 func (fm *FileManager) WriteFile(path string, data []byte) error {
+	if !fm.hasPermission(path, true) {
+		log.Printf("Denied Permission: %s", path)
+		return ErrPermissionDenied
+	}
+
 	if err := ioutil.WriteFile(path, data, 0644); err != nil {
 		return fmt.Errorf("erro ao escrever no arquivo %s: %v", path, err)
 	}
+
 	return nil
 }
 
