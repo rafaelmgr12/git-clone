@@ -40,11 +40,11 @@ func (r *Repository) Init() error {
 		}
 	}
 
-	return r.createDefaultConfig()
+	return r.CreateDefaultConfig()
 
 }
 
-func (r *Repository) createDefaultConfig() error {
+func (r *Repository) CreateDefaultConfig() error {
 	defaultConfig := `{
 	"author": "",
 	"email": ""
