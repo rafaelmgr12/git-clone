@@ -40,6 +40,11 @@ func (r *Repository) Init() error {
 		}
 	}
 
+	commitsDir := r.Path + "/" + ObjectsDir + "/commits"
+	if err := r.File.CreateDir(commitsDir); err != nil {
+		return err
+	}
+
 	return r.CreateDefaultConfig()
 
 }
