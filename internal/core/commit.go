@@ -47,20 +47,20 @@ func (c *Commit) Serialize() string {
 }
 
 func (c *Commit) Save(repo *Repository) error {
-	commitPath := repo.Path + "/objects/" + c.Hash
+	commitPath := repo.Path + "/objects/commits/" + c.Hash
 	data := c.Serialize()
 	return repo.File.WriteFile(commitPath, []byte(data))
 }
 
 func (r *Repository) GetCommits() ([]Commit, error) {
-	objectFiles, err := ioutil.ReadDir(r.Path + "/objects")
+	objectFiles, err := ioutil.ReadDir(r.Path + "/objects/commits/")
 	if err != nil {
-		return nil, fmt.Errorf("error reading objects directory: %v", err)
+		return nil, fmt.Errorf("error reading commits directory: %v", err)
 	}
 
 	var commits []Commit
 	for _, objectFile := range objectFiles {
-		commitContent, err := r.File.ReadFile(r.Path + "/objects/" + objectFile.Name())
+		commitContent, err := r.File.ReadFile(r.Path + "/objects/commits/" + objectFile.Name())
 		if err != nil {
 			return nil, fmt.Errorf("error reading commit object: %v", err)
 		}
