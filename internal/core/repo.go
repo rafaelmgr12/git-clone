@@ -1,6 +1,8 @@
 package core
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"path/filepath"
 )
@@ -47,4 +49,17 @@ func (r *Repository) createDefaultConfig() error {
 
 	configPath := filepath.Join(r.Path, configFile)
 	return r.File.WriteFile(configPath, []byte(defaultConfig))
+}
+
+func (r *Repository) AddFile(filePath string) error {
+	content, err := r.File.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	hash := sha1.Sum(content)
+	hastToString := hex.EncodeToString(hash[:])
+
+	objectPath := filepath.Join(r.Path, objectsDir, hastToString)
+	return r.File.WriteFile(objectPath, content)
 }
