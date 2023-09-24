@@ -20,6 +20,7 @@ type FileManagerInterface interface {
 	CopyFile(src, dest string) error
 	RemoveFile(path string) error
 	RemoveDir(path string) error
+	UpdateIndexFile(filename string) error
 }
 
 type FileManager struct{}
