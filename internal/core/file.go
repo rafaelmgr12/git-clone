@@ -29,22 +29,14 @@ func NewFileManager() *FileManager {
 	return &FileManager{}
 }
 
-func (fm *FileManager) hasPermission(path string, write bool) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	perm := info.Mode().Perm()
-	if write {
-		return perm&0200 != 0
-	}
-	return perm&0400 != 0
-}
-
 func (fm *FileManager) CreateDir(path string) error {
-	if !fm.hasPermission(path, true) {
-		log.Printf("permission denied: %s", path)
-		return ErrPermissionDenied
+	err := os.MkdirAll(path, 0755)
+	if err != nil {
+		if os.IsPermission(err) {
+			log.Printf("Permission denied: %s", path)
+			return ErrPermissionDenied
+		}
+		return err
 	}
 	return nil
 }
@@ -55,24 +47,26 @@ func (fm *FileManager) Exists(path string) bool {
 }
 
 func (fm *FileManager) ReadFile(path string) ([]byte, error) {
-	content, _ := ioutil.ReadFile(path)
-	if !fm.hasPermission(path, false) {
-		log.Printf("Permission Denied: %s", path)
-		return nil, ErrPermissionDenied
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		if os.IsPermission(err) {
+			log.Printf("Permission Denied: %s", path)
+			return nil, ErrPermissionDenied
+		}
+		return nil, err
 	}
 	return content, nil
 }
 
 func (fm *FileManager) WriteFile(path string, data []byte) error {
-	if !fm.hasPermission(path, true) {
-		log.Printf("Denied Permission: %s", path)
-		return ErrPermissionDenied
+	err := ioutil.WriteFile(path, data, 0644)
+	if err != nil {
+		if os.IsPermission(err) {
+			log.Printf("Denied Permission: %s", path)
+			return ErrPermissionDenied
+		}
+		return fmt.Errorf("error writing to file %s: %v", path, err)
 	}
-
-	if err := ioutil.WriteFile(path, data, 0644); err != nil {
-		return fmt.Errorf("erro ao escrever no arquivo %s: %v", path, err)
-	}
-
 	return nil
 }
 
@@ -85,15 +79,25 @@ func (fm *FileManager) CopyFile(src, dest string) error {
 }
 
 func (fm *FileManager) RemoveFile(path string) error {
-	if err := os.Remove(path); err != nil {
-		return fmt.Errorf("erro ao remover arquivo %s: %v", path, err)
+	err := os.Remove(path)
+	if err != nil {
+		if os.IsPermission(err) {
+			log.Printf("Permission Denied: %s", path)
+			return ErrPermissionDenied
+		}
+		return fmt.Errorf("error removing file %s: %v", path, err)
 	}
 	return nil
 }
 
 func (fm *FileManager) RemoveDir(path string) error {
-	if err := os.RemoveAll(path); err != nil {
-		return fmt.Errorf("erro ao remover diretório %s: %v", path, err)
+	err := os.RemoveAll(path)
+	if err != nil {
+		if os.IsPermission(err) {
+			log.Printf("Permission Denied: %s", path)
+			return ErrPermissionDenied
+		}
+		return fmt.Errorf("error removing directory %s: %v", path, err)
 	}
 	return nil
 }
