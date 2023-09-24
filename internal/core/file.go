@@ -96,3 +96,18 @@ func (fm *FileManager) RemoveDir(path string) error {
 	}
 	return nil
 }
+
+func (fm *FileManager) UpdateIndexFile(filename string) error {
+	indexFilePath := ".fit/index.txt"
+	if !fm.Exists(indexFilePath) {
+		if err := fm.WriteFile(indexFilePath, []byte("")); err != nil {
+			return err
+		}
+	}
+	content, err := fm.ReadFile(indexFilePath)
+	if err != nil {
+		return err
+	}
+	content = append(content, []byte(filename+"\n")...)
+	return fm.WriteFile(indexFilePath, content)
+}
