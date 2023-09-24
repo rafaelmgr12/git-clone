@@ -18,7 +18,7 @@ const (
 	objectsDir  = "objects"
 	refsDir     = "refs"
 	configFile  = "config"
-	stagingArea = "STAGING"
+	StagingArea = "STAGING"
 )
 
 func NewRepository(path string) *Repository {
@@ -27,7 +27,7 @@ func NewRepository(path string) *Repository {
 
 func (r *Repository) Init() error {
 	if r.File.Exists(r.Path) {
-		return errors.New(".fit já existe neste diretório")
+		return errors.New(".fit directory already exists")
 	}
 
 	if err := r.File.CreateDir(r.Path); err != nil {
@@ -77,7 +77,7 @@ func (r *Repository) addSingleFile(filePath string) error {
 }
 
 func (r *Repository) GetStagedFiles() ([]string, error) {
-	stagingPath := filepath.Join(r.Path, stagingArea)
+	stagingPath := filepath.Join(r.Path, StagingArea)
 	if !r.File.Exists(stagingPath) {
 		return nil, nil
 	}
